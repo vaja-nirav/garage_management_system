@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Sale extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'garage_id',
+        'customer_id',
+        'sale_number',
+        'sale_date',
+        'total_amount',
+        'discount',
+        'tax',
+        'net_amount',
+        'paid_amount',
+        'payment_status',
+        'notes',
+    ];
+
+    public function garage()
+    {
+        return $this->belongsTo(Garage::class);
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(SaleItem::class);
+    }
+}
