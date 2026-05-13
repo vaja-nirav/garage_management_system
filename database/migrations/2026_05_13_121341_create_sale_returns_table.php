@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('sale_returns', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('garage_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('sale_id')->constrained()->cascadeOnDelete();
+            $table->string('return_number')->unique();
+            $table->date('return_date');
+            $table->decimal('amount', 12, 2);
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

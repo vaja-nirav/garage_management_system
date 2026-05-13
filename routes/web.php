@@ -34,45 +34,35 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('plans', PlanController::class);
+    // Subscription & Administration
+    Route::resource('plans', PlanController::class)->middleware('permission:view plans');
+    Route::resource('garages', GarageController::class)->middleware('permission:view garages');
+    Route::resource('subscriptions', SubscriptionController::class)->middleware('permission:view subscriptions');
 
-    Route::resource('garages', GarageController::class);
+    // CRM & Staff
+    Route::resource('customers', CustomerController::class)->middleware('permission:view customers');
+    Route::resource('vehicles', VehicleController::class)->middleware('permission:view vehicles');
+    Route::resource('staff', StaffController::class)->middleware('permission:view staff');
 
-    Route::resource('subscriptions', SubscriptionController::class);
+    // Inventory
+    Route::resource('categories', ProductCategoryController::class)->middleware('permission:view categories');
+    Route::resource('products', ProductController::class)->middleware('permission:view products');
+    Route::resource('suppliers', SupplierController::class)->middleware('permission:view suppliers');
 
-    Route::resource('customers', CustomerController::class);
+    // Operations
+    Route::resource('purchases', PurchaseController::class)->middleware('permission:view purchases');
+    Route::resource('purchase-returns', PurchaseReturnController::class)->middleware('permission:view purchase_returns');
+    Route::resource('sales', SaleController::class)->middleware('permission:view sales');
+    Route::resource('sale-returns', SaleReturnController::class)->middleware('permission:view sale_returns');
+    Route::resource('appointments', ServiceAppointmentController::class)->middleware('permission:view appointments');
+    Route::resource('job-cards', ServiceJobCardController::class)->middleware('permission:view job_cards');
 
-    Route::resource('vehicles', VehicleController::class);
-
-    Route::resource('staff', StaffController::class);
-
-    Route::resource('categories', ProductCategoryController::class);
-
-    Route::resource('products', ProductController::class);
-
-    Route::resource('suppliers', SupplierController::class);
-
-    Route::resource('purchases', PurchaseController::class);
-
-    Route::resource('purchase-returns', PurchaseReturnController::class);
-
-    Route::resource('sales', SaleController::class);
-    
-    Route::resource('sale-returns', SaleReturnController::class);
-
-    Route::resource('appointments', ServiceAppointmentController::class);
-
-    Route::resource('job-cards', ServiceJobCardController::class);
-
-    Route::resource('expenses', ExpenseController::class);
-
-    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
-
-    Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
-
-    Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
-
-    Route::resource('roles', RoleController::class);
+    // Financials & System
+    Route::resource('expenses', ExpenseController::class)->middleware('permission:view expenses');
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index')->middleware('permission:view reports');
+    Route::get('settings', [SettingController::class, 'index'])->name('settings.index')->middleware('permission:view settings');
+    Route::post('settings', [SettingController::class, 'update'])->name('settings.update')->middleware('permission:edit settings');
+    Route::resource('roles', RoleController::class)->middleware('permission:view roles');
 });
 
 require __DIR__.'/auth.php';

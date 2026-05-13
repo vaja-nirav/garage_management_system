@@ -32,30 +32,31 @@ class RolesAndPermissionsSeeder extends Seeder
             'job_cards',
             'expenses',
             'reports',
-            'settings'
+            'settings',
+            'roles'
         ];
 
         // Create Permissions
         foreach ($modules as $module) {
-            Permission::create(['name' => "view $module"]);
-            Permission::create(['name' => "create $module"]);
-            Permission::create(['name' => "edit $module"]);
-            Permission::create(['name' => "delete $module"]);
+            Permission::firstOrCreate(['name' => "view $module"]);
+            Permission::firstOrCreate(['name' => "create $module"]);
+            Permission::firstOrCreate(['name' => "edit $module"]);
+            Permission::firstOrCreate(['name' => "delete $module"]);
         }
 
         // Create Roles and Assign Permissions
         
         // 1. Admin (Full Access)
-        $adminRole = Role::create(['name' => 'admin']);
-        $adminRole->givePermissionTo(Permission::all());
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $adminRole->syncPermissions(Permission::all());
 
         // 2. Owner (Full access to their garage data)
-        $ownerRole = Role::create(['name' => 'owner']);
-        $ownerRole->givePermissionTo(Permission::all());
+        $ownerRole = Role::firstOrCreate(['name' => 'owner']);
+        $ownerRole->syncPermissions(Permission::all());
 
         // 3. Staff (Restricted Access)
-        $staffRole = Role::create(['name' => 'staff']);
-        $staffRole->givePermissionTo([
+        $staffRole = Role::firstOrCreate(['name' => 'staff']);
+        $staffRole->syncPermissions([
             'view customers', 'create customers', 'edit customers',
             'view vehicles', 'create vehicles', 'edit vehicles',
             'view products',
