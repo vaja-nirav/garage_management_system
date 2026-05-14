@@ -48,4 +48,9 @@ class ServiceJobCard extends Model
     {
         return $this->hasMany(Sale::class, 'service_job_card_id');
     }
+
+    public function items()
+    {
+        return $this->hasMany(ServiceJobCardItem::class, 'service_job_card_id');
+    }
 }

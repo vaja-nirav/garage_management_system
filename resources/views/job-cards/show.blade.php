@@ -32,7 +32,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <h3 class="text-sm font-medium text-gray-500 uppercase">Payment Summary</h3>
-                            <p class="text-3xl font-bold text-gray-900 mt-1">Total Due: ${{ number_format($grandTotal, 2) }}</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-1">Total Due: ₹{{ number_format($grandTotal, 2) }}</p>
                         </div>
                         <div>
                             @if($jobCard->status !== 'delivered')
@@ -94,32 +94,66 @@
                                     <th scope="col" class="px-6 py-3">Quantity</th>
                                     <th scope="col" class="px-6 py-3">Unit Price</th>
                                     <th scope="col" class="px-6 py-3">Total</th>
+                                    <th scope="col" class="px-6 py-3 text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($jobCard->sales as $sale)
                                     @foreach ($sale->items as $item)
-                                        <tr class="bg-white border-b">
-                                            <td class="px-6 py-4 font-medium text-gray-900">
-                                                {{ $item->product->name }}
+                                        <tr class="bg-white border-b hover:bg-gray-50/50 transition-colors">
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center">
+                                                    <span class="font-bold text-gray-800">{{ $item->product->name }}</span>
+                                                    <span class="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-[10px] rounded-full font-bold uppercase tracking-wider">Billed</span>
+                                                </div>
                                             </td>
-                                            <td class="px-6 py-4">{{ $item->quantity }}</td>
-                                            <td class="px-6 py-4">${{ number_format($item->unit_price, 2) }}</td>
-                                            <td class="px-6 py-4 font-bold">${{ number_format($item->total, 2) }}</td>
+                                            <td class="px-6 py-4 text-gray-600">{{ number_format($item->quantity, 2) }}</td>
+                                            <td class="px-6 py-4 text-gray-600">₹{{ number_format($item->unit_price, 2) }}</td>
+                                            <td class="px-6 py-4 font-bold text-gray-900">₹{{ number_format($item->total, 2) }}</td>
+                                            <td class="px-6 py-4 text-center">
+                                                <span class="text-gray-400 cursor-not-allowed" title="Billed items cannot be removed">
+                                                    <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                                </span>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 @endforeach
+
+                                <!-- Staged Items (Pending Checkout) -->
+                                @foreach ($jobCard->items as $item)
+                                    <tr class="bg-amber-50/20 border-b hover:bg-amber-50/40 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center">
+                                                <span class="font-bold text-gray-800">{{ $item->product->name }}</span>
+                                                <span class="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] rounded-full font-bold uppercase tracking-wider">Pending Sale</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-600">{{ number_format($item->quantity, 2) }}</td>
+                                        <td class="px-6 py-4 text-gray-600">₹{{ number_format($item->unit_price, 2) }}</td>
+                                        <td class="px-6 py-4 font-bold text-amber-900">₹{{ number_format($item->total, 2) }}</td>
+                                        <td class="px-6 py-4 text-center">
+                                            <form action="{{ route('job-cards.items.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Remove this item from the job card?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors" title="Remove Item">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+
                                 @if ($grandTotal == 0)
                                     <tr>
-                                        <td colspan="4" class="px-6 py-4 text-center text-gray-400">No parts or
+                                        <td colspan="5" class="px-6 py-4 text-center text-gray-400">No parts or
                                             services added yet.</td>
                                     </tr>
                                 @endif
                             </tbody>
                             <tfoot>
                                 <tr class="font-bold text-gray-900 bg-gray-100">
-                                    <td colspan="3" class="px-6 py-4 text-right">Total Billing Amount:</td>
-                                    <td class="px-6 py-4">${{ number_format($grandTotal, 2) }}</td>
+                                    <td colspan="4" class="px-6 py-4 text-right border-r">Total Billing Amount:</td>
+                                    <td class="px-6 py-4 text-center">₹{{ number_format($grandTotal, 2) }}</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -180,23 +214,22 @@
                         <select id="product-search" class="select2 block w-full">
                             <option value="">Type to search product...</option>
                             @foreach (\App\Models\Product::all() as $product)
-                                <option value="{{ $product->id }}" data-name="{{ $product->name }}"
-                                    data-price="{{ $product->selling_price }}">
-                                    {{ $product->name }} (${{ number_format($product->selling_price, 2) }})
+                                <option value="{{ $product->id }}" 
+                                    data-name="{{ $product->name }}"
+                                    data-price="{{ $product->selling_price }}"
+                                    data-stock="{{ $product->quantity }}"
+                                    data-track="{{ $product->track_stock ? '1' : '0' }}">
+                                    {{ $product->name }} (Stock: {{ $product->quantity }}) - ₹{{ number_format($product->selling_price, 2) }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
                 </div>
 
-                <form action="{{ route('sales.store') }}" method="POST">
+                <form action="{{ route('job-cards.addItem', $jobCard->id) }}" method="POST">
                     @csrf
-                    <input type="hidden" name="service_job_card_id" value="{{ $jobCard->id }}">
                     <input type="hidden" name="garage_id" value="{{ $jobCard->garage_id }}">
                     <input type="hidden" name="customer_id" value="{{ $jobCard->customer_id }}">
-                    <input type="hidden" name="sale_date" value="{{ date('Y-m-d') }}">
-                    <input type="hidden" name="sale_number"
-                        value="JOB-INV-{{ $jobCard->id }}-{{ time() }}">
 
                     <div class="max-h-96 overflow-y-auto mb-6">
                         <table class="w-full text-sm text-left text-gray-500" id="selected-items-table">
@@ -256,6 +289,15 @@
             const selectedOption = select.find(':selected');
             const name = selectedOption.data('name');
             const price = parseFloat(selectedOption.data('price'));
+            const stock = parseFloat(selectedOption.data('stock'));
+            const trackStock = selectedOption.data('track') == '1';
+
+            // Instant Stock Check
+            if (trackStock && stock <= 0) {
+                toastr.error(`${name}: Out of Stock!`, "Stock Alert");
+                select.val(null).trigger('change');
+                return;
+            }
 
             // Remove "no items" row
             $('#no-items-row').hide();
@@ -312,7 +354,7 @@
             $('.row-total').each(function() {
                 grandTotal += parseFloat($(this).text());
             });
-            $('#modal-total').text('$' + grandTotal.toFixed(2));
+            $('#modal-total').text('₹' + grandTotal.toFixed(2));
         }
 
         function closeModal() {
@@ -335,7 +377,7 @@
                     <p class="text-sm text-gray-500">You are about to finalize the payment and deliver the vehicle to the customer.</p>
                     <div class="mt-4 bg-gray-50 p-4 rounded-lg">
                         <span class="text-gray-600 text-sm">Total Amount to Collect:</span>
-                        <div class="text-2xl font-black text-green-600">${{ number_format($grandTotal, 2) }}</div>
+                        <div class="text-2xl font-black text-green-600">₹{{ number_format($grandTotal, 2) }}</div>
                     </div>
                 </div>
                 
