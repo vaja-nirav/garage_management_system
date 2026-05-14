@@ -36,9 +36,15 @@
                         </div>
                         <div>
                             @if($jobCard->status !== 'delivered')
-                                <button onclick="document.getElementById('checkout-modal').classList.remove('hidden')" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 shadow-lg transform transition hover:scale-105">
-                                    Collect Payment & Deliver
-                                </button>
+                                @if($grandTotal > 0)
+                                    <button onclick="document.getElementById('checkout-modal').classList.remove('hidden')" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 shadow-lg transform transition hover:scale-105">
+                                        Collect Payment & Deliver
+                                    </button>
+                                @else
+                                    <button disabled class="bg-gray-400 text-white px-8 py-3 rounded-lg font-bold cursor-not-allowed shadow-none" title="Add items to job card before collecting payment">
+                                        Collect Payment & Deliver
+                                    </button>
+                                @endif
                             @else
                                 <span class="px-6 py-2 bg-gray-100 text-gray-500 rounded-lg font-bold border border-gray-200">
                                     Vehicle Delivered & Paid

@@ -59,6 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('appointments', ServiceAppointmentController::class)->middleware('permission:view appointments');
     Route::resource('job-cards', ServiceJobCardController::class)->middleware('permission:view job_cards');
     Route::post('job-cards/{jobCard}/checkout', [ServiceJobCardController::class, 'checkout'])->name('job-cards.checkout')->middleware('permission:view job_cards');
+    Route::get('job-cards/{jobCard}/print', [ServiceJobCardController::class, 'print'])->name('job-cards.print')->middleware('permission:view job_cards');
     Route::post('job-cards/{jobCard}/add-item', [ServiceJobCardController::class, 'addItem'])->name('job-cards.addItem')->middleware('permission:view job_cards');
     Route::delete('job-cards/items/{item}', [ServiceJobCardController::class, 'destroyItem'])->name('job-cards.items.destroy')->middleware('permission:view job_cards');
 

@@ -12,8 +12,11 @@ use App\Models\Payment;
 use App\Models\ServiceJobCardItem;
 use App\Models\SaleItem;
 use App\Models\Product;
+use App\Notifications\VehicleReady;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreJobCardRequest;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ServiceJobCardController extends Controller
 {
@@ -21,7 +24,7 @@ class ServiceJobCardController extends Controller
     {
         $search = $request->input('search');
 
-        $jobCards = ServiceJobCard::with(['customer', 'vehicle', 'staff', 'garage'])
+        $jobCards = ServiceJobCard::with(['customer', 'vehicle', 'staff', 'garage', 'sales'])
             ->when($search, function ($query) use ($search) {
                 $query->whereHas('customer', function ($q) use ($search) {
                     $q->where('first_name', 'like', "%{$search}%")
@@ -119,7 +122,26 @@ class ServiceJobCardController extends Controller
 
     public function update(\Illuminate\Http\Request $request, ServiceJobCard $jobCard)
     {
+        $oldStatus = $jobCard->status;
         $jobCard->update($request->all());
+
+        // Check if status changed to completed
+        if ($oldStatus !== 'completed' && $jobCard->status === 'completed') {
+            // Send Notification to Customer
+            try {
+                $jobCard->customer->notify(new VehicleReady($jobCard));
+                
+                // Also manually trigger our custom Twilio service for immediate effect 
+                // as 'via' might be empty or just database for now
+                $notification = new VehicleReady($jobCard);
+                $notification->toTwilio($jobCard->customer);
+                
+            } catch (\Exception $e) {
+                // Log but don't break the flow
+                \Illuminate\Support\Facades\Log::error("Notification failed: " . $e->getMessage());
+            }
+        }
+
         return redirect()->route('job-cards.show', $jobCard->id)->with('success', 'Job Card updated successfully.');
     }
 
@@ -143,7 +165,7 @@ class ServiceJobCardController extends Controller
                     'sale_number' => 'INV-JOB-' . $jobCard->id . '-' . strtoupper(uniqid()),
                     'sale_date' => now(),
                     'total_amount' => $totalAmount,
-                    'tax_amount' => $taxAmount,
+                    'tax' => $taxAmount,
                     'net_amount' => $netAmount,
                     'payment_status' => 'paid', // Mark as paid since we are collecting payment now
                     'paid_amount' => $netAmount,
@@ -208,10 +230,26 @@ class ServiceJobCardController extends Controller
             ]);
 
             DB::commit();
-            return redirect()->route('job-cards.index')->with('success', 'Sale generated, payment collected, and vehicle delivered successfully!');
+            
+            return redirect()->route('job-cards.index')->with('success', 'Sale generated, payment collected, and vehicle delivered successfully!')->with('print_invoice_url', route('job-cards.print', $jobCard->id));
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Checkout failed: ' . $e->getMessage());
         }
+    }
+
+    public function print(ServiceJobCard $jobCard)
+    {
+        $jobCard->load(['customer', 'vehicle', 'staff', 'garage', 'sales.items.product']);
+        
+        $pdf = Pdf::loadView('job-cards.pdf', compact('jobCard'));
+        
+        return $pdf->stream('Invoice-' . $jobCard->job_card_number . '.pdf');
+    }
+
+    public function destroy(ServiceJobCard $jobCard)
+    {
+        $jobCard->delete();
+        return redirect()->route('job-cards.index')->with('success', 'Job Card deleted successfully.');
     }
 }
