@@ -315,12 +315,12 @@
                         <div class="font-bold text-gray-800">${name}</div>
                     </td>
                     <td class="px-4 py-4">
-                        <input type="number" name="items[${productId}][qty]" value="1" min="0.1" step="0.1" 
+                        <input type="number" name="items[${productId}][qty]" value="1" min="1" step="1" 
                                onchange="updateRowTotal(${productId}, ${price})" 
                                class="qty-input w-full border-gray-300 rounded-md shadow-sm">
                     </td>
-                    <td class="px-4 py-4">$${price.toFixed(2)}</td>
-                    <td class="px-4 py-4 font-bold text-gray-900">$<span class="row-total" id="total-${productId}">${price.toFixed(2)}</span></td>
+                    <td class="px-4 py-4">₹${price.toFixed(2)}</td>
+                    <td class="px-4 py-4 font-bold text-gray-900">₹<span class="row-total" id="total-${productId}">${price.toFixed(2)}</span></td>
                     <td class="px-4 py-4 text-center">
                         <button type="button" onclick="removeRow(${productId})" class="text-red-500 hover:text-red-700">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>

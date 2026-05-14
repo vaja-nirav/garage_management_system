@@ -25,7 +25,7 @@
                                     <th scope="col" class="px-6 py-3">Date</th>
                                     <th scope="col" class="px-6 py-3">Total</th>
                                     <th scope="col" class="px-6 py-3">Status</th>
-                                    <th scope="col" class="px-6 py-3">Action</th>
+                                    <th scope="col" class="px-6 py-3 text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
