@@ -66,6 +66,8 @@ Route::middleware('auth')->group(function () {
     // Financials & System
     Route::resource('expenses', ExpenseController::class)->middleware('permission:view expenses');
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index')->middleware('permission:view reports');
+    Route::get('reports/pdf', [ReportController::class, 'downloadPdf'])->name('reports.pdf')->middleware('permission:view reports');
+    Route::get('reports/excel', [ReportController::class, 'exportExcel'])->name('reports.excel')->middleware('permission:view reports');
     Route::get('settings', [SettingController::class, 'index'])->name('settings.index')->middleware('permission:view settings');
     Route::post('settings', [SettingController::class, 'update'])->name('settings.update')->middleware('permission:edit settings');
     Route::resource('roles', RoleController::class)->middleware('permission:view roles');

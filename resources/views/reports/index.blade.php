@@ -63,41 +63,170 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Visual Placeholder for Charts -->
+                <!-- Revenue Breakdown Chart -->
                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
                     <h4 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
                         <span class="w-2 h-8 bg-indigo-600 rounded-full mr-3"></span>
-                        Revenue Breakdown
+                        Revenue Breakdown (Last 6 Months)
                     </h4>
-                    <div class="h-64 flex flex-col justify-center items-center text-gray-400 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                        <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-                        <p class="font-medium italic">Chart visualization coming soon...</p>
+                    <div class="h-64">
+                        <canvas id="revenueChart"></canvas>
                     </div>
                 </div>
 
+                <!-- Monthly Growth Chart -->
                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                    <h4 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
-                        <span class="w-2 h-8 bg-emerald-600 rounded-full mr-3"></span>
-                        Monthly Growth
-                    </h4>
-                    <div class="h-64 flex flex-col justify-center items-center text-gray-400 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                        <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
-                        <p class="font-medium italic">Monthly trend analysis coming soon...</p>
+                    <div class="flex justify-between items-center mb-6">
+                        <h4 class="text-lg font-bold text-gray-800 flex items-center">
+                            <span class="w-2 h-8 bg-emerald-600 rounded-full mr-3"></span>
+                            Sales vs Expenses
+                        </h4>
+                        <select id="chartTypeToggle" class="text-xs border-gray-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition-all cursor-pointer">
+                            <option value="bar">Bar Chart</option>
+                            <option value="line">Line Chart</option>
+                        </select>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="growthChart"></canvas>
                     </div>
                 </div>
             </div>
 
             <!-- Action Area -->
             <div class="mt-10 flex justify-center space-x-4">
-                <button onclick="window.print()" class="px-8 py-3 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 shadow-lg flex items-center">
+                <a href="{{ route('reports.pdf') }}" target="_blank" class="px-8 py-3 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 shadow-lg flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                     Print Summary Report
-                </button>
-                <button class="px-8 py-3 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 shadow-lg flex items-center">
+                </a>
+                <a href="{{ route('reports.excel') }}" class="px-8 py-3 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 shadow-lg flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     Download Detailed Excel
-                </button>
+                </a>
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chartData = @json($chartData);
+
+            // Revenue Chart (Doughnut)
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(revenueCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sales', 'Purchases', 'Expenses'],
+                    datasets: [{
+                        data: [
+                            {{ $data['total_sales'] }}, 
+                            {{ $data['total_purchases'] }}, 
+                            {{ $data['total_expenses'] }}
+                        ],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f43f5e'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Growth Chart (Bar + Line)
+            const growthCtx = document.getElementById('growthChart').getContext('2d');
+            const growthChart = new Chart(growthCtx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [
+                        {
+                            label: 'Sales',
+                            data: chartData.sales,
+                            backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                            borderColor: '#10b981',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                        },
+                        {
+                            label: 'Expenses',
+                            data: chartData.expenses,
+                            backgroundColor: 'rgba(244, 63, 94, 0.8)',
+                            borderColor: '#f43f5e',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    if (value >= 1000) {
+                                        return (value / 1000).toFixed(value % 1000 === 0 ? 0 : 1) + 'k';
+                                    }
+                                    return value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Toggle Chart Type
+            document.getElementById('chartTypeToggle').addEventListener('change', function() {
+                const newType = this.value;
+                
+                growthChart.data.datasets.forEach((dataset) => {
+                    dataset.type = newType;
+                    if (newType === 'line') {
+                        dataset.fill = true;
+                        dataset.tension = 0.4;
+                        dataset.borderWidth = 2;
+                        if (dataset.label === 'Sales') {
+                            dataset.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+                        } else {
+                            dataset.backgroundColor = 'rgba(244, 63, 94, 0.1)';
+                        }
+                    } else {
+                        dataset.fill = false;
+                        dataset.borderWidth = 1;
+                        if (dataset.label === 'Sales') {
+                            dataset.backgroundColor = 'rgba(16, 185, 129, 0.8)';
+                        } else {
+                            dataset.backgroundColor = 'rgba(244, 63, 94, 0.8)';
+                        }
+                    }
+                });
+                
+                growthChart.update();
+            });
+        });
+    </script>
+    @endpush
 </x-app-layout>
