@@ -77,7 +77,7 @@
                         Critical
                     </span>
                 </div>
-                <h3 class="text-slate-500 text-sm font-bold uppercase tracking-wider">Low Stock</h3>
+                <h3 class="text-slate-500 text-sm font-bold uppercase tracking-wider">Low Stock Products</h3>
                 <p class="text-3xl font-black text-slate-900 mt-1">{{ $stats['low_stock_products'] }}</p>
             </a>
             @endcan
