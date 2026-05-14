@@ -17,7 +17,6 @@ use App\Http\Controllers\ServiceAppointmentController;
 use App\Http\Controllers\ServiceJobCardController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\SettingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PurchaseReturnController;
 use App\Http\Controllers\SaleReturnController;
@@ -68,8 +67,6 @@ Route::middleware('auth')->group(function () {
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index')->middleware('permission:view reports');
     Route::get('reports/pdf', [ReportController::class, 'downloadPdf'])->name('reports.pdf')->middleware('permission:view reports');
     Route::get('reports/excel', [ReportController::class, 'exportExcel'])->name('reports.excel')->middleware('permission:view reports');
-    Route::get('settings', [SettingController::class, 'index'])->name('settings.index')->middleware('permission:view settings');
-    Route::post('settings', [SettingController::class, 'update'])->name('settings.update')->middleware('permission:edit settings');
     Route::resource('roles', RoleController::class)->middleware('permission:view roles');
 });
 

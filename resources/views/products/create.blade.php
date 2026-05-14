@@ -80,6 +80,24 @@
                             </div>
 
                             <div>
+                                <label class="block font-medium text-sm text-gray-700" for="tax_type">Tax Type</label>
+                                <select name="tax_type" id="tax_type" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                    <option value="exclusive" {{ old('tax_type') == 'exclusive' ? 'selected' : '' }}>Exclusive (GST Extra)</option>
+                                    <option value="inclusive" {{ old('tax_type') == 'inclusive' ? 'selected' : '' }}>Inclusive (GST included in price)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block font-medium text-sm text-gray-700" for="hsn_code">HSN/SAC Code</label>
+                                <input type="text" name="hsn_code" id="hsn_code" value="{{ old('hsn_code') }}" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                            </div>
+
+                            <div>
+                                <label class="block font-medium text-sm text-gray-700" for="barcode">Barcode</label>
+                                <input type="text" name="barcode" id="barcode" value="{{ old('barcode') }}" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                            </div>
+
+                            <div>
                                 <label class="block font-medium text-sm text-gray-700" for="status">Status</label>
                                 <select name="status" id="status" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                                     <option value="1" {{ old('status') == '1' ? 'selected' : '' }}>Active</option>

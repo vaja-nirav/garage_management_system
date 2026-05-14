@@ -32,7 +32,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'job_cards',
             'expenses',
             'reports',
-            'settings',
             'roles'
         ];
 

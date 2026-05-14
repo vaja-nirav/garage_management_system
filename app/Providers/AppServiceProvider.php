@@ -23,11 +23,5 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::defaultView('vendor.pagination.professional');
 
-        if (!app()->runningInConsole() && \Illuminate\Support\Facades\Schema::hasTable('settings')) {
-            view()->composer('*', function ($view) {
-                $settings = \App\Models\Setting::pluck('value', 'key')->all();
-                $view->with('settings', $settings);
-            });
-        }
     }
 }

@@ -24,6 +24,9 @@ class StoreProductRequest extends FormRequest
             'min_stock_alert' => 'required|integer|min:0',
             'quantity' => 'nullable|integer|min:0',
             'tax_rate' => 'required|numeric|min:0',
+            'tax_type' => 'required|string|in:exclusive,inclusive',
+            'hsn_code' => 'nullable|string|max:20',
+            'barcode' => 'nullable|string|max:50',
         ];
     }
 }

@@ -23,6 +23,8 @@ class Product extends Model
         'quantity',
         'min_stock_alert',
         'tax_rate',
+        'tax_type',
+        'hsn_code',
         'image',
         'is_service_part',
         'track_stock',

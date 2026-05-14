@@ -61,8 +61,10 @@
                                     <option value="{{ $product->id }}" 
                                             data-name="{{ $product->name }}" 
                                             data-price="{{ $product->selling_price }}" 
-                                            data-stock="{{ $product->quantity }}">
-                                        {{ $product->name }} (Price: {{ $settings['currency_symbol'] ?? '₹' }}{{ $product->selling_price }}) - Stock: {{ $product->quantity }}
+                                            data-stock="{{ $product->quantity }}"
+                                            data-tax-rate="{{ $product->tax_rate }}"
+                                            data-tax-type="{{ $product->tax_type }}">
+                                        {{ $product->name }} (Price: ₹{{ $product->selling_price }}) - Tax: {{ $product->tax_rate }}% ({{ $product->tax_type }})
                                     </option>
                                 @endforeach
                             </select>
@@ -85,9 +87,11 @@
                                         <td class="px-6 py-5">
                                             <div class="flex flex-col">
                                                 <span class="font-black text-slate-800">{{ $item->product->name }}</span>
-                                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Part #{{ $item->product->product_code }}</span>
+                                                <span class="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">Tax: {{ $item->product->tax_rate }}% ({{ $item->product->tax_type }})</span>
                                             </div>
                                             <input type="hidden" name="items[{{ $item->product_id }}][product_id]" value="{{ $item->product_id }}">
+                                            <input type="hidden" class="tax-rate" value="{{ $item->product->tax_rate }}">
+                                            <input type="hidden" class="tax-type" value="{{ $item->product->tax_type }}">
                                         </td>
                                         <td class="px-6 py-5 text-center">
                                             <input type="number" name="items[{{ $item->product_id }}][quantity]" value="{{ $item->quantity }}" min="1" 
@@ -99,7 +103,7 @@
                                                    class="price-input w-28 border-slate-200 rounded-xl text-right font-bold focus:ring-indigo-500 focus:border-indigo-500" 
                                                    onchange="updateRowTotal({{ $item->product_id }})">
                                         </td>
-                                        <td class="px-6 py-5 text-right font-black text-slate-800 row-total">{{ $settings['currency_symbol'] ?? '₹' }}{{ number_format($item->total, 2) }}</td>
+                                        <td class="px-6 py-5 text-right font-black text-slate-800 row-total">₹{{ number_format($item->total, 2) }}</td>
                                         <td class="px-6 py-5 text-center">
                                             <button type="button" onclick="removeRow({{ $item->product_id }})" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
                                                 <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -111,17 +115,17 @@
                                 <tfoot class="bg-slate-50 font-bold text-gray-900 border-t-2 border-indigo-600">
                                     <tr>
                                         <td colspan="3" class="px-6 py-4 text-right uppercase tracking-widest text-xs text-slate-400">Total Amount</td>
-                                        <td class="px-6 py-4 text-right font-black" id="displayTotal">{{ $settings['currency_symbol'] ?? '₹' }}{{ number_format($sale->total_amount, 2) }}</td>
+                                        <td class="px-6 py-4 text-right font-black" id="displayTotal">₹{{ number_format($sale->total_amount, 2) }}</td>
                                         <td></td>
                                     </tr>
                                     <tr class="text-indigo-600 bg-indigo-50/30">
-                                        <td colspan="3" class="px-6 py-4 text-right uppercase tracking-widest text-xs">Tax ({{ $settings['default_tax'] ?? 0 }}%)</td>
-                                        <td class="px-6 py-4 text-right font-black" id="displayTax">{{ $settings['currency_symbol'] ?? '₹' }}{{ number_format($sale->tax_amount, 2) }}</td>
+                                        <td colspan="3" class="px-6 py-4 text-right uppercase tracking-widest text-xs">Total Tax / GST</td>
+                                        <td class="px-6 py-4 text-right font-black" id="displayTax">₹{{ number_format($sale->tax_amount, 2) }}</td>
                                         <td></td>
                                     </tr>
                                     <tr class="bg-indigo-600 text-white text-lg">
                                         <td colspan="3" class="px-6 py-6 text-right uppercase tracking-[0.2em] font-black">Grand Total</td>
-                                        <td class="px-6 py-6 text-right font-black" id="displayGrandTotal">{{ $settings['currency_symbol'] ?? '₹' }}{{ number_format($sale->net_amount, 2) }}</td>
+                                        <td class="px-6 py-6 text-right font-black" id="displayGrandTotal">₹{{ number_format($sale->net_amount, 2) }}</td>
                                         <td></td>
                                     </tr>
                                 </tfoot>
@@ -153,26 +157,28 @@
 
     @push('scripts')
     <script>
-        const DEFAULT_TAX_RATE = {{ $settings['default_tax'] ?? 0 }};
-        const CURRENCY_SYMBOL = "{{ $settings['currency_symbol'] ?? '₹' }}";
+        const CURRENCY_SYMBOL = "₹";
 
         $(document).ready(function() {
             $('.select2').select2({
                 placeholder: "Search for options..."
             });
 
+            // Initial calculation for existing items
+            calculateTotals();
+
             $('#product_selector').on('select2:select', function (e) {
                 const data = e.params.data.element.dataset;
                 const productId = e.params.data.id;
                 
                 if (productId) {
-                    addProductToTable(productId, data.name, data.price);
+                    addProductToTable(productId, data.name, data.price, data.taxRate, data.taxType);
                     $(this).val('').trigger('change');
                 }
             });
         });
 
-        function addProductToTable(id, name, price) {
+        function addProductToTable(id, name, price, taxRate, taxType) {
             if ($(`#item-${id}`).length > 0) {
                 let qtyInput = $(`#item-${id} .qty-input`);
                 qtyInput.val(parseInt(qtyInput.val()) + 1);
@@ -183,8 +189,13 @@
             const row = `
                 <tr class="bg-white border-b hover:bg-slate-50 transition-colors" id="item-${id}">
                     <td class="px-6 py-5">
-                        <span class="font-black text-slate-800">${name}</span>
+                        <div class="flex flex-col">
+                            <span class="font-black text-slate-800">${name}</span>
+                            <span class="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">Tax: ${taxRate}% (${taxType})</span>
+                        </div>
                         <input type="hidden" name="items[${id}][product_id]" value="${id}">
+                        <input type="hidden" class="tax-rate" value="${taxRate}">
+                        <input type="hidden" class="tax-type" value="${taxType}">
                     </td>
                     <td class="px-6 py-5 text-center">
                         <input type="number" name="items[${id}][quantity]" value="1" min="1" 
@@ -223,21 +234,37 @@
         }
 
         function calculateTotals() {
-            let total = 0;
-            $('.row-total').each(function() {
-                const rowVal = parseFloat($(this).text().replace(CURRENCY_SYMBOL, '')) || 0;
-                total += rowVal;
+            let subtotal = 0;
+            let totalTax = 0;
+
+            $('#itemsTable tbody tr').each(function() {
+                const qty = parseFloat($(this).find('.qty-input').val()) || 0;
+                const price = parseFloat($(this).find('.price-input').val()) || 0;
+                const taxRate = parseFloat($(this).find('.tax-rate').val()) || 0;
+                const taxType = $(this).find('.tax-type').val();
+                
+                const lineTotal = qty * price;
+                
+                if (taxType === 'exclusive') {
+                    // Exclusive: Price is base, add tax on top
+                    subtotal += lineTotal;
+                    totalTax += lineTotal * (taxRate / 100);
+                } else {
+                    // Inclusive: Price includes tax, extract base
+                    const basePrice = lineTotal / (1 + (taxRate / 100));
+                    subtotal += basePrice;
+                    totalTax += (lineTotal - basePrice);
+                }
             });
 
-            const tax = total * (DEFAULT_TAX_RATE / 100);
-            const grandTotal = total + tax;
+            const grandTotal = subtotal + totalTax;
 
-            $('#displayTotal').text(CURRENCY_SYMBOL + total.toFixed(2));
-            $('#displayTax').text(CURRENCY_SYMBOL + tax.toFixed(2));
+            $('#displayTotal').text(CURRENCY_SYMBOL + subtotal.toFixed(2));
+            $('#displayTax').text(CURRENCY_SYMBOL + totalTax.toFixed(2));
             $('#displayGrandTotal').text(CURRENCY_SYMBOL + grandTotal.toFixed(2));
 
-            $('#total_amount').val(total.toFixed(2));
-            $('#tax_amount').val(tax.toFixed(2));
+            $('#total_amount').val(subtotal.toFixed(2));
+            $('#tax_amount').val(totalTax.toFixed(2));
             $('#net_amount').val(grandTotal.toFixed(2));
         }
     </script>

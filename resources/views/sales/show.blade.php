@@ -31,16 +31,16 @@
                                 <div class="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200">
                                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                                 </div>
-                                <h1 class="text-3xl font-black text-slate-900 tracking-tight">{{ $settings['app_name'] ?? 'GaragePro' }}</h1>
+                                <h1 class="text-3xl font-black text-slate-900 tracking-tight">{{ config('app.name', 'GaragePro') }}</h1>
                             </div>
                             <div class="text-slate-400 text-sm font-medium space-y-1">
-                                <p>{{ $sale->garage->garage_name }}</p>
                                 <p>{{ $sale->garage->address }}</p>
+                                <p>{{ $sale->garage->phone }}</p>
                             </div>
                         </div>
                         <div class="text-right">
                             <h2 class="text-indigo-600 font-black text-4xl uppercase tracking-tighter mb-2">Invoice</h2>
-                            <p class="text-slate-900 font-black text-lg">{{ $sale->sale_number }}</p>
+                            <p class="text-slate-900 font-black text-lg">INV-{{ $sale->sale_number }}</p>
                             <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">Date: {{ \Carbon\Carbon::parse($sale->sale_date)->format('d M, Y') }}</p>
                         </div>
                     </div>
@@ -89,8 +89,8 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-5 text-center font-bold text-slate-600">{{ $item->quantity }}</td>
-                                    <td class="px-6 py-5 text-right font-bold text-slate-600">{{ $settings['currency_symbol'] ?? '₹' }}{{ number_format($item->unit_price, 2) }}</td>
-                                    <td class="px-6 py-5 text-right font-black text-slate-900">{{ $settings['currency_symbol'] ?? '₹' }}{{ number_format($item->total, 2) }}</td>
+                                    <td class="px-6 py-5 text-right font-bold text-slate-600">₹{{ number_format($item->unit_price, 2) }}</td>
+                                    <td class="px-6 py-5 text-right font-black text-slate-900">₹{{ number_format($item->total, 2) }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -102,15 +102,15 @@
                         <div class="w-full md:w-1/2 space-y-3">
                             <div class="flex justify-between items-center text-slate-500 font-bold uppercase tracking-widest text-xs px-6">
                                 <span>Subtotal</span>
-                                <span>{{ $settings['currency_symbol'] ?? '₹' }}{{ number_format($sale->total_amount, 2) }}</span>
+                                <span>₹{{ number_format($sale->total_amount, 2) }}</span>
                             </div>
                             <div class="flex justify-between items-center text-slate-500 font-bold uppercase tracking-widest text-xs px-6">
                                 <span>Tax Amount</span>
-                                <span>{{ $settings['currency_symbol'] ?? '₹' }}{{ number_format($sale->tax_amount, 2) }}</span>
+                                <span>₹{{ number_format($sale->tax_amount, 2) }}</span>
                             </div>
                             <div class="flex justify-between items-center bg-indigo-600 text-white rounded-2xl p-6 shadow-xl shadow-indigo-100">
                                 <span class="text-lg font-black uppercase tracking-widest">Grand Total</span>
-                                <span class="text-3xl font-black">{{ $settings['currency_symbol'] ?? '₹' }}{{ number_format($sale->net_amount, 2) }}</span>
+                                <span class="text-3xl font-black">₹{{ number_format($sale->net_amount, 2) }}</span>
                             </div>
                         </div>
                     </div>

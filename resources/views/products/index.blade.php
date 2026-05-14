@@ -62,6 +62,7 @@
                                     <th class="px-6 py-4 font-black">SKU / Code</th>
                                     <th class="px-6 py-4 font-black">Product Name</th>
                                     <th class="px-6 py-4 font-black">Category</th>
+                                    <th class="px-6 py-4 font-black">Tax / GST</th>
                                     <th class="px-6 py-4 font-black text-right">Price</th>
                                     <th class="px-6 py-4 font-black text-center">Stock</th>
                                     <th class="px-6 py-4 font-black text-center">Actions</th>
@@ -86,12 +87,18 @@
                                                 {{ $product->category->name ?? 'Uncategorized' }}
                                             </span>
                                         </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex flex-col">
+                                                <span class="font-black text-slate-700 text-xs">{{ $product->tax_rate }}%</span>
+                                                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{{ $product->tax_type }}</span>
+                                            </div>
+                                        </td>
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex flex-col items-end">
                                                 <span
-                                                    class="font-black text-slate-900">{{ $settings['currency_symbol'] ?? '₹' }}{{ number_format($product->selling_price, 2) }}</span>
+                                                    class="font-black text-slate-900">₹{{ number_format($product->selling_price, 2) }}</span>
                                                 <span class="text-[9px] text-slate-400 font-bold">Cost:
-                                                    {{ $settings['currency_symbol'] ?? '₹' }}{{ number_format($product->purchase_price, 2) }}</span>
+                                                    ₹{{ number_format($product->purchase_price, 2) }}</span>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 text-center">
