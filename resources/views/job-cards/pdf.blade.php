@@ -163,20 +163,45 @@
                 <th>Description</th>
                 <th style="text-align: center;">Qty</th>
                 <th style="text-align: right;">Unit Price</th>
+                <th style="text-align: center;">Tax %</th>
                 <th style="text-align: right;">Total</th>
             </tr>
         </thead>
         <tbody>
-            @php $subTotal = 0; @endphp
+            @php 
+                $totalBase = 0; 
+                $totalTaxAmount = 0;
+            @endphp
             @foreach($jobCard->sales as $sale)
                 @foreach($sale->items as $item)
+                    @php
+                        $qty = $item->quantity;
+                        $price = $item->unit_price;
+                        $taxRate = $item->product->tax_rate ?? 0;
+                        $taxType = $item->product->tax_type ?? 'exclusive';
+                        $lineTotal = $qty * $price;
+                        
+                        if ($taxType === 'exclusive') {
+                            $base = $lineTotal;
+                            $tax = $lineTotal * ($taxRate / 100);
+                        } else {
+                            $base = $lineTotal / (1 + ($taxRate / 100));
+                            $tax = $lineTotal - $base;
+                        }
+                        
+                        $totalBase += $base;
+                        $totalTaxAmount += $tax;
+                    @endphp
                     <tr>
-                        <td>{{ $item->product->name }}</td>
-                        <td style="text-align: center;">{{ $item->quantity }}</td>
+                        <td>
+                            {{ $item->product->name }}<br>
+                            <small style="color: #888; font-size: 9px;">Type: {{ ucfirst($taxType) }}</small>
+                        </td>
+                        <td style="text-align: center;">{{ number_format($item->quantity, 2) }}</td>
                         <td style="text-align: right;">&#8377;{{ number_format($item->unit_price, 2) }}</td>
+                        <td style="text-align: center;">{{ $taxRate }}%</td>
                         <td style="text-align: right;">&#8377;{{ number_format($item->total, 2) }}</td>
                     </tr>
-                    @php $subTotal += $item->total; @endphp
                 @endforeach
             @endforeach
         </tbody>
@@ -186,16 +211,16 @@
         <div style="width: 100%;">
             <table style="width: 100%;">
                 <tr>
-                    <td style="text-align: left; padding: 5px 0;">Subtotal:</td>
-                    <td style="text-align: right; padding: 5px 0;">&#8377;{{ number_format($subTotal, 2) }}</td>
+                    <td style="text-align: left; padding: 5px 0; color: #666;">Subtotal:</td>
+                    <td style="text-align: right; padding: 5px 0; font-weight: bold;">&#8377;{{ number_format($totalBase, 2) }}</td>
                 </tr>
                 <tr>
-                    <td style="text-align: left; padding: 5px 0;">Tax:</td>
-                    <td style="text-align: right; padding: 5px 0;">&#8377;0.00</td>
+                    <td style="text-align: left; padding: 5px 0; color: #666;">Total Tax (GST):</td>
+                    <td style="text-align: right; padding: 5px 0; font-weight: bold; color: #4f46e5;">&#8377;{{ number_format($totalTaxAmount, 2) }}</td>
                 </tr>
                 <tr class="grand-total">
-                    <td style="text-align: left; padding: 10px 0; font-size: 18px; border-top: 1px solid #eee;">Grand Total:</td>
-                    <td style="text-align: right; padding: 10px 0; font-size: 18px; border-top: 1px solid #eee; color: #4f46e5;">&#8377;{{ number_format($subTotal, 2) }}</td>
+                    <td style="text-align: left; padding: 10px 0; font-size: 18px; border-top: 1px solid #4f46e5;">Grand Total:</td>
+                    <td style="text-align: right; padding: 10px 0; font-size: 18px; border-top: 1px solid #4f46e5; color: #4f46e5;">&#8377;{{ number_format($totalBase + $totalTaxAmount, 2) }}</td>
                 </tr>
             </table>
         </div>

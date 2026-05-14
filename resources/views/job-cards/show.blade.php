@@ -97,9 +97,10 @@
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-3">Product / Part</th>
-                                    <th scope="col" class="px-6 py-3">Quantity</th>
-                                    <th scope="col" class="px-6 py-3">Unit Price</th>
-                                    <th scope="col" class="px-6 py-3">Total</th>
+                                    <th scope="col" class="px-6 py-3 text-center">Quantity</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Unit Price</th>
+                                    <th scope="col" class="px-6 py-3 text-center">Tax / GST</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Total</th>
                                     <th scope="col" class="px-6 py-3 text-center">Action</th>
                                 </tr>
                             </thead>
@@ -113,9 +114,12 @@
                                                     <span class="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-[10px] rounded-full font-bold uppercase tracking-wider">Billed</span>
                                                 </div>
                                             </td>
-                                            <td class="px-6 py-4 text-gray-600">{{ number_format($item->quantity, 2) }}</td>
-                                            <td class="px-6 py-4 text-gray-600">₹{{ number_format($item->unit_price, 2) }}</td>
-                                            <td class="px-6 py-4 font-bold text-gray-900">₹{{ number_format($item->total, 2) }}</td>
+                                            <td class="px-6 py-4 text-center text-gray-600">{{ number_format($item->quantity, 2) }}</td>
+                                            <td class="px-6 py-4 text-right text-gray-600">₹{{ number_format($item->unit_price, 2) }}</td>
+                                            <td class="px-6 py-4 text-center">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ $item->product->tax_rate }}% ({{ $item->product->tax_type }})</span>
+                                            </td>
+                                            <td class="px-6 py-4 text-right font-bold text-gray-900">₹{{ number_format($item->total, 2) }}</td>
                                             <td class="px-6 py-4 text-center">
                                                 <span class="text-gray-400 cursor-not-allowed" title="Billed items cannot be removed">
                                                     <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
@@ -134,9 +138,12 @@
                                                 <span class="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] rounded-full font-bold uppercase tracking-wider">Pending Sale</span>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 text-gray-600">{{ number_format($item->quantity, 2) }}</td>
-                                        <td class="px-6 py-4 text-gray-600">₹{{ number_format($item->unit_price, 2) }}</td>
-                                        <td class="px-6 py-4 font-bold text-amber-900">₹{{ number_format($item->total, 2) }}</td>
+                                        <td class="px-6 py-4 text-center text-gray-600">{{ number_format($item->quantity, 2) }}</td>
+                                        <td class="px-6 py-4 text-right text-gray-600">₹{{ number_format($item->unit_price, 2) }}</td>
+                                        <td class="px-6 py-4 text-center">
+                                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ $item->product->tax_rate }}% ({{ $item->product->tax_type }})</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-right font-bold text-amber-900">₹{{ number_format($item->total, 2) }}</td>
                                         <td class="px-6 py-4 text-center">
                                             <form action="{{ route('job-cards.items.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Remove this item from the job card?')">
                                                 @csrf
@@ -157,9 +164,20 @@
                                 @endif
                             </tbody>
                             <tfoot>
-                                <tr class="font-bold text-gray-900 bg-gray-100">
-                                    <td colspan="4" class="px-6 py-4 text-right border-r">Total Billing Amount:</td>
-                                    <td class="px-6 py-4 text-center">₹{{ number_format($grandTotal, 2) }}</td>
+                                <tr class="text-gray-500 text-xs">
+                                    <td colspan="4" class="px-6 py-2 text-right uppercase tracking-widest font-bold">Subtotal:</td>
+                                    <td class="px-6 py-2 text-right font-bold">₹{{ number_format($totalAmount, 2) }}</td>
+                                    <td></td>
+                                </tr>
+                                <tr class="text-indigo-600 text-xs">
+                                    <td colspan="4" class="px-6 py-2 text-right uppercase tracking-widest font-bold">Total Tax / GST:</td>
+                                    <td class="px-6 py-2 text-right font-bold">₹{{ number_format($totalTax, 2) }}</td>
+                                    <td></td>
+                                </tr>
+                                <tr class="font-black text-white bg-indigo-600 text-lg">
+                                    <td colspan="4" class="px-6 py-4 text-right uppercase tracking-widest">Total Billing Amount:</td>
+                                    <td class="px-6 py-4 text-right">₹{{ number_format($grandTotal, 2) }}</td>
+                                    <td></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -224,6 +242,8 @@
                                     data-name="{{ $product->name }}"
                                     data-price="{{ $product->selling_price }}"
                                     data-stock="{{ $product->quantity }}"
+                                    data-tax-rate="{{ $product->tax_rate }}"
+                                    data-tax-type="{{ $product->tax_type }}"
                                     data-track="{{ $product->track_stock ? '1' : '0' }}">
                                     {{ $product->name }} (Stock: {{ $product->quantity }}) - ₹{{ number_format($product->selling_price, 2) }}
                                 </option>
@@ -242,9 +262,10 @@
                             <thead class="text-xs text-gray-700 uppercase bg-gray-100">
                                 <tr>
                                     <th class="px-4 py-3">Product Name</th>
-                                    <th class="px-4 py-3 w-32">Quantity</th>
-                                    <th class="px-4 py-3">Price</th>
-                                    <th class="px-4 py-3">Total</th>
+                                    <th class="px-4 py-3 w-24">Quantity</th>
+                                    <th class="px-4 py-3 text-right">Price</th>
+                                    <th class="px-4 py-3 text-center">Tax %</th>
+                                    <th class="px-4 py-3 text-right">Total</th>
                                     <th class="px-4 py-3 text-center">Action</th>
                                 </tr>
                             </thead>
@@ -291,42 +312,48 @@
             const select = $('#product-search');
             const productId = select.val();
             if (!productId) return;
-
+ 
             const selectedOption = select.find(':selected');
             const name = selectedOption.data('name');
             const price = parseFloat(selectedOption.data('price'));
             const stock = parseFloat(selectedOption.data('stock'));
+            const taxRate = parseFloat(selectedOption.data('tax-rate')) || 0;
+            const taxType = selectedOption.data('tax-type') || 'exclusive';
             const trackStock = selectedOption.data('track') == '1';
-
+ 
             // Instant Stock Check
             if (trackStock && stock <= 0) {
                 toastr.error(`${name}: Out of Stock!`, "Stock Alert");
                 select.val(null).trigger('change');
                 return;
             }
-
+ 
             // Remove "no items" row
             $('#no-items-row').hide();
-
+ 
             // Check if already exists
             if ($(`#row-${productId}`).length) {
                 alert('This item is already in the list. Please update the quantity.');
                 return;
             }
-
+ 
             const row = `
                 <tr id="row-${productId}" class="border-b hover:bg-gray-50">
                     <td class="px-4 py-4">
                         <input type="hidden" name="items[${productId}][id]" value="${productId}">
+                        <input type="hidden" class="tax-rate" value="${taxRate}">
+                        <input type="hidden" class="tax-type" value="${taxType}">
                         <div class="font-bold text-gray-800">${name}</div>
+                        <div class="text-[9px] text-slate-400 uppercase font-black tracking-tighter">Tax: ${taxRate}% (${taxType})</div>
                     </td>
                     <td class="px-4 py-4">
                         <input type="number" name="items[${productId}][qty]" value="1" min="1" step="1" 
-                               onchange="updateRowTotal(${productId}, ${price})" 
+                               onchange="updateRowTotal(${productId}, ${price}, ${taxRate}, '${taxType}')" 
                                class="qty-input w-full border-gray-300 rounded-md shadow-sm">
                     </td>
-                    <td class="px-4 py-4">₹${price.toFixed(2)}</td>
-                    <td class="px-4 py-4 font-bold text-gray-900">₹<span class="row-total" id="total-${productId}">${price.toFixed(2)}</span></td>
+                    <td class="px-4 py-4 text-right text-gray-600">₹${price.toFixed(2)}</td>
+                    <td class="px-4 py-4 text-center text-slate-400 font-bold">${taxRate}%</td>
+                    <td class="px-4 py-4 text-right font-black text-gray-900">₹<span class="row-total" id="total-${productId}">${price.toFixed(2)}</span></td>
                     <td class="px-4 py-4 text-center">
                         <button type="button" onclick="removeRow(${productId})" class="text-red-500 hover:text-red-700">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -334,16 +361,22 @@
                     </td>
                 </tr>
             `;
-
+ 
             $('#selected-items-body').append(row);
             select.val(null).trigger('change');
             calculateGrandTotal();
         }
-
-        function updateRowTotal(id, price) {
+ 
+        function updateRowTotal(id, price, taxRate, taxType) {
             const qty = parseFloat($(`#row-${id} .qty-input`).val()) || 0;
-            const total = qty * price;
-            $(`#total-${id}`).text(total.toFixed(2));
+            const lineTotal = qty * price;
+            
+            let totalToDisplay = lineTotal;
+            if (taxType === 'exclusive') {
+                totalToDisplay = lineTotal + (lineTotal * (taxRate / 100));
+            }
+ 
+            $(`#total-${id}`).text(totalToDisplay.toFixed(2));
             calculateGrandTotal();
         }
 

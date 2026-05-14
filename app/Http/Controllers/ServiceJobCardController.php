@@ -59,15 +59,53 @@ class ServiceJobCardController extends Controller
     {
         $jobCard->load(['customer', 'vehicle', 'staff', 'garage', 'sales.items.product', 'items.product']);
         
-        // Sum of both existing sales (if any) and staged items
-        $existingSalesTotal = $jobCard->sales->sum(function($sale) {
-            return $sale->items->sum('total');
-        });
-        
-        $stagedItemsTotal = $jobCard->items->sum('total');
-        $grandTotal = $existingSalesTotal + $stagedItemsTotal;
+        // Calculate Totals and Taxes
+        $totalAmount = 0;
+        $totalTax = 0;
 
-        return view('job-cards.show', compact('jobCard', 'grandTotal', 'stagedItemsTotal'));
+        // Sum from existing sales
+        foreach ($jobCard->sales as $sale) {
+            foreach ($sale->items as $item) {
+                $qty = $item->quantity;
+                $price = $item->unit_price;
+                $taxRate = $item->product->tax_rate ?? 0;
+                $taxType = $item->product->tax_type ?? 'exclusive';
+                
+                $lineTotal = $qty * $price;
+                
+                if ($taxType === 'exclusive') {
+                    $totalAmount += $lineTotal;
+                    $totalTax += ($lineTotal * ($taxRate / 100));
+                } else {
+                    $basePrice = $lineTotal / (1 + ($taxRate / 100));
+                    $totalAmount += $basePrice;
+                    $totalTax += ($lineTotal - $basePrice);
+                }
+            }
+        }
+
+        // Sum from staged items
+        foreach ($jobCard->items as $item) {
+            $qty = $item->quantity;
+            $price = $item->unit_price;
+            $taxRate = $item->product->tax_rate ?? 0;
+            $taxType = $item->product->tax_type ?? 'exclusive';
+            
+            $lineTotal = $qty * $price;
+            
+            if ($taxType === 'exclusive') {
+                $totalAmount += $lineTotal;
+                $totalTax += ($lineTotal * ($taxRate / 100));
+            } else {
+                $basePrice = $lineTotal / (1 + ($taxRate / 100));
+                $totalAmount += $basePrice;
+                $totalTax += ($lineTotal - $basePrice);
+            }
+        }
+
+        $grandTotal = $totalAmount + $totalTax;
+
+        return view('job-cards.show', compact('jobCard', 'grandTotal', 'totalAmount', 'totalTax'));
     }
 
     public function addItem(\Illuminate\Http\Request $request, ServiceJobCard $jobCard)
@@ -153,9 +191,28 @@ class ServiceJobCardController extends Controller
             $stagedItems = $jobCard->items;
             
             if ($stagedItems->count() > 0) {
-                $totalAmount = $stagedItems->sum('total');
-                $taxAmount = 0; // Can be expanded to include tax logic
-                $netAmount = $totalAmount + $taxAmount;
+                $totalAmount = 0;
+                $totalTax = 0;
+
+                foreach ($stagedItems as $item) {
+                    $qty = $item->quantity;
+                    $price = $item->unit_price;
+                    $taxRate = $item->product->tax_rate ?? 0;
+                    $taxType = $item->product->tax_type ?? 'exclusive';
+                    
+                    $lineTotal = $qty * $price;
+                    
+                    if ($taxType === 'exclusive') {
+                        $totalAmount += $lineTotal;
+                        $totalTax += ($lineTotal * ($taxRate / 100));
+                    } else {
+                        $basePrice = $lineTotal / (1 + ($taxRate / 100));
+                        $totalAmount += $basePrice;
+                        $totalTax += ($lineTotal - $basePrice);
+                    }
+                }
+
+                $netAmount = $totalAmount + $totalTax;
 
                 // Create the formal Sale
                 $sale = Sale::create([
@@ -165,9 +222,9 @@ class ServiceJobCardController extends Controller
                     'sale_number' => 'INV-JOB-' . $jobCard->id . '-' . strtoupper(uniqid()),
                     'sale_date' => now(),
                     'total_amount' => $totalAmount,
-                    'tax' => $taxAmount,
+                    'tax_amount' => $totalTax, // Corrected column name to tax_amount
                     'net_amount' => $netAmount,
-                    'payment_status' => 'paid', // Mark as paid since we are collecting payment now
+                    'payment_status' => 'paid',
                     'paid_amount' => $netAmount,
                     'notes' => 'Automatic sale generated from Job Card: ' . $jobCard->job_card_number
                 ]);
