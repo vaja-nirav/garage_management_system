@@ -43,4 +43,9 @@ class ServiceJobCard extends Model
     {
         return $this->belongsTo(Staff::class);
     }
+
+    public function sales()
+    {
+        return $this->hasMany(Sale::class, 'service_job_card_id');
+    }
 }

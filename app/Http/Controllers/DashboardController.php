@@ -16,7 +16,9 @@ class DashboardController extends Controller
             'total_customers' => Customer::count(),
             'active_job_cards' => ServiceJobCard::where('status', '!=', 'delivered')->count(),
             'total_revenue' => Sale::sum('net_amount'),
-            'low_stock_products' => Product::whereRaw('track_stock = 1 AND min_stock_alert >= 0')->count(), // Simplified
+            'low_stock_products' => Product::where('track_stock', 1)
+                                         ->whereColumn('quantity', '<=', 'min_stock_alert')
+                                         ->count(),
         ];
 
         return view('dashboard', compact('stats'));

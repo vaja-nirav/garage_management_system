@@ -26,4 +26,23 @@ class ExpenseController extends Controller
 
         return redirect()->route('expenses.index')->with('success', 'Expense recorded successfully.');
     }
+
+    public function edit(Expense $expense)
+    {
+        $garages = Garage::all();
+        return view('expenses.edit', compact('expense', 'garages'));
+    }
+
+    public function update(StoreExpenseRequest $request, Expense $expense)
+    {
+        $expense->update($request->validated());
+
+        return redirect()->route('expenses.index')->with('success', 'Expense updated successfully.');
+    }
+
+    public function destroy(Expense $expense)
+    {
+        $expense->delete();
+        return redirect()->route('expenses.index')->with('success', 'Expense deleted successfully.');
+    }
 }

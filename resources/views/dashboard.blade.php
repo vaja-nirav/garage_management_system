@@ -12,7 +12,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
             <!-- Total Customers -->
             @can('view customers')
-            <div class="glass-card p-6 group hover:border-blue-500/50 transition-all duration-300">
+            <a href="{{ route('customers.index') }}" class="glass-card p-6 group hover:border-blue-500/50 transition-all duration-300 cursor-pointer block">
                 <div class="flex items-center justify-between mb-4">
                     <div class="p-3 rounded-xl bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform duration-300">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,12 +25,12 @@
                 </div>
                 <h3 class="text-slate-500 text-sm font-bold uppercase tracking-wider">Total Customers</h3>
                 <p class="text-3xl font-black text-slate-900 mt-1">{{ $stats['total_customers'] }}</p>
-            </div>
+            </a>
             @endcan
 
             <!-- Active Job Cards -->
             @can('view job_cards')
-            <div class="glass-card p-6 group hover:border-amber-500/50 transition-all duration-300">
+            <a href="{{ route('job-cards.index') }}" class="glass-card p-6 group hover:border-amber-500/50 transition-all duration-300 cursor-pointer block">
                 <div class="flex items-center justify-between mb-4">
                     <div class="p-3 rounded-xl bg-amber-50 text-amber-600 group-hover:scale-110 transition-transform duration-300">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,12 +43,12 @@
                 </div>
                 <h3 class="text-slate-500 text-sm font-bold uppercase tracking-wider">Active Jobs</h3>
                 <p class="text-3xl font-black text-slate-900 mt-1">{{ $stats['active_job_cards'] }}</p>
-            </div>
+            </a>
             @endcan
 
             <!-- Total Revenue -->
             @can('view reports')
-            <div class="glass-card p-6 group hover:border-emerald-500/50 transition-all duration-300">
+            <a href="{{ route('sales.index') }}" class="glass-card p-6 group hover:border-emerald-500/50 transition-all duration-300 cursor-pointer block">
                 <div class="flex items-center justify-between mb-4">
                     <div class="p-3 rounded-xl bg-emerald-50 text-emerald-600 group-hover:scale-110 transition-transform duration-300">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,12 +61,12 @@
                 </div>
                 <h3 class="text-slate-500 text-sm font-bold uppercase tracking-wider">Total Revenue</h3>
                 <p class="text-3xl font-black text-slate-900 mt-1">${{ number_format($stats['total_revenue'], 2) }}</p>
-            </div>
+            </a>
             @endcan
 
             <!-- Low Stock -->
             @can('view products')
-            <div class="glass-card p-6 group hover:border-rose-500/50 transition-all duration-300">
+            <a href="{{ route('products.index') }}" class="glass-card p-6 group hover:border-rose-500/50 transition-all duration-300 cursor-pointer block">
                 <div class="flex items-center justify-between mb-4">
                     <div class="p-3 rounded-xl bg-rose-50 text-rose-600 group-hover:scale-110 transition-transform duration-300">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,7 +79,7 @@
                 </div>
                 <h3 class="text-slate-500 text-sm font-bold uppercase tracking-wider">Low Stock</h3>
                 <p class="text-3xl font-black text-slate-900 mt-1">{{ $stats['low_stock_products'] }}</p>
-            </div>
+            </a>
             @endcan
         </div>
 

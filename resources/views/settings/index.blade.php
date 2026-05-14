@@ -12,19 +12,14 @@
                     <form method="POST" action="{{ route('settings.update') }}">
                         @csrf
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <x-input-label for="site_name" :value="__('Application Name')" />
-                                <x-text-input id="site_name" name="site_name" type="text" class="mt-1 block w-full" value="{{ $settings->where('key', 'site_name')->first()->value ?? 'Garage SaaS' }}" />
+                             <div>
+                                <x-input-label for="app_name" :value="__('Application Name')" />
+                                <x-text-input id="app_name" name="app_name" type="text" class="mt-1 block w-full" value="{{ $settings['app_name'] ?? 'Garage SaaS' }}" />
                             </div>
 
                             <div>
-                                <x-input-label for="currency" :value="__('Currency Symbol')" />
-                                <x-text-input id="currency" name="currency" type="text" class="mt-1 block w-full" value="{{ $settings->where('key', 'currency')->first()->value ?? '$' }}" />
-                            </div>
-
-                            <div>
-                                <x-input-label for="tax_percentage" :value="__('Default Tax (%)')" />
-                                <x-text-input id="tax_percentage" name="tax_percentage" type="text" class="mt-1 block w-full" value="{{ $settings->where('key', 'tax_percentage')->first()->value ?? '10' }}" />
+                                <x-input-label for="default_tax" :value="__('Default Tax (%)')" />
+                                <x-text-input id="default_tax" name="default_tax" type="text" class="mt-1 block w-full" value="{{ $settings['default_tax'] ?? '10' }}" />
                             </div>
                         </div>
 

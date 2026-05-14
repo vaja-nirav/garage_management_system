@@ -12,6 +12,7 @@ class Sale extends Model
     protected $fillable = [
         'garage_id',
         'customer_id',
+        'service_job_card_id',
         'sale_number',
         'sale_date',
         'total_amount',
@@ -36,5 +37,10 @@ class Sale extends Model
     public function items()
     {
         return $this->hasMany(SaleItem::class);
+    }
+
+    public function jobCard()
+    {
+        return $this->belongsTo(ServiceJobCard::class, 'service_job_card_id');
     }
 }

@@ -27,4 +27,9 @@ class SaleReturn extends Model
     {
         return $this->belongsTo(Sale::class);
     }
+
+    public function items()
+    {
+        return $this->hasMany(SaleReturnItem::class);
+    }
 }

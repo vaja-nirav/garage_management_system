@@ -15,7 +15,7 @@ class StoreExpenseRequest extends FormRequest
     {
         return [
             'garage_id' => 'required|exists:garages,id',
-            'expense_number' => 'required|unique:expenses,expense_number',
+            'expense_number' => 'required|unique:expenses,expense_number,' . ($this->route('expense') ? $this->route('expense')->id : ''),
             'expense_category' => 'required|string',
             'expense_date' => 'required|date',
             'amount' => 'required|numeric|min:0',

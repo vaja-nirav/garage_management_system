@@ -53,7 +53,13 @@
                             </div>
                         </div>
 
+                        <!-- Notes -->
                         <div class="mt-6">
+                            <x-input-label for="notes" :value="__('Description / Notes')" />
+                            <textarea id="notes" name="notes" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" rows="3"></textarea>
+                        </div>
+
+                        <div class="mt-8">
                             <x-primary-button>
                                 {{ __('Record Expense') }}
                             </x-primary-button>

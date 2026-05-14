@@ -22,6 +22,7 @@ class StoreProductRequest extends FormRequest
             'purchase_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'min_stock_alert' => 'required|integer|min:0',
+            'quantity' => 'nullable|integer|min:0',
             'tax_rate' => 'required|numeric|min:0',
         ];
     }

@@ -12,9 +12,31 @@ use App\Http\Requests\UpdateProductRequest;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with(['garage', 'category'])->paginate(10);
+        $perPage = $request->get('per_page', 10);
+        $stockStatus = $request->get('stock_status');
+        $search = $request->get('search');
+
+        $query = Product::with(['garage', 'category']);
+
+        // Search logic
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('sku', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Filter logic
+        if ($stockStatus === 'low_stock') {
+            $query->whereColumn('quantity', '<=', 'min_stock_alert');
+        } elseif ($stockStatus === 'available') {
+            $query->where('quantity', '>', 0);
+        }
+
+        $products = $query->latest()->paginate($perPage)->withQueryString();
+        
         return view('products.index', compact('products'));
     }
 

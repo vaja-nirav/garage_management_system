@@ -55,6 +55,11 @@
                             </div>
 
                             <div>
+                                <label class="block font-medium text-sm text-gray-700" for="quantity">Initial Quantity</label>
+                                <input type="number" name="quantity" id="quantity" value="{{ old('quantity', 0) }}" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                            </div>
+
+                            <div>
                                 <label class="block font-medium text-sm text-gray-700" for="purchase_price">Purchase Price ($)</label>
                                 <input type="number" step="0.01" name="purchase_price" id="purchase_price" value="{{ old('purchase_price', 0) }}" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                             </div>

@@ -20,6 +20,7 @@ class Product extends Model
         'description',
         'purchase_price',
         'selling_price',
+        'quantity',
         'min_stock_alert',
         'tax_rate',
         'image',

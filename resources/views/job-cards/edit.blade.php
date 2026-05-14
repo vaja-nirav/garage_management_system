@@ -1,0 +1,106 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Edit Job Card') }}: {{ $jobCard->job_card_number }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <form method="POST" action="{{ route('job-cards.update', $jobCard) }}">
+                        @csrf
+                        @method('PATCH')
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Garage -->
+                            <div>
+                                <x-input-label for="garage_id" :value="__('Select Garage')" />
+                                <select id="garage_id" name="garage_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    @foreach($garages as $garage)
+                                        <option value="{{ $garage->id }}" {{ $jobCard->garage_id == $garage->id ? 'selected' : '' }}>
+                                            {{ $garage->garage_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Job Card Number -->
+                            <div>
+                                <x-input-label for="job_card_number" :value="__('Job Card Number')" />
+                                <x-text-input id="job_card_number" name="job_card_number" type="text" class="mt-1 block w-full bg-gray-50" value="{{ $jobCard->job_card_number }}" readonly />
+                            </div>
+
+                            <!-- Customer -->
+                            <div>
+                                <x-input-label for="customer_id" :value="__('Customer')" />
+                                <select id="customer_id" name="customer_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    @foreach($customers as $customer)
+                                        <option value="{{ $customer->id }}" {{ $jobCard->customer_id == $customer->id ? 'selected' : '' }}>
+                                            {{ $customer->first_name }} {{ $customer->last_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Vehicle -->
+                            <div>
+                                <x-input-label for="vehicle_id" :value="__('Vehicle')" />
+                                <select id="vehicle_id" name="vehicle_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    @foreach($vehicles as $vehicle)
+                                        <option value="{{ $vehicle->id }}" {{ $jobCard->vehicle_id == $vehicle->id ? 'selected' : '' }}>
+                                            {{ $vehicle->registration_number }} ({{ $vehicle->make }} {{ $vehicle->model }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Assigned Staff -->
+                            <div>
+                                <x-input-label for="staff_id" :value="__('Assign Mechanic/Staff')" />
+                                <select id="staff_id" name="staff_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="">{{ __('Select Mechanic') }}</option>
+                                    @foreach($staff as $member)
+                                        <option value="{{ $member->id }}" {{ $jobCard->staff_id == $member->id ? 'selected' : '' }}>
+                                            {{ $member->first_name }} {{ $member->last_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Estimated Cost -->
+                            <div>
+                                <x-input-label for="estimated_cost" :value="__('Estimated Cost')" />
+                                <x-text-input id="estimated_cost" name="estimated_cost" type="number" step="0.01" class="mt-1 block w-full" value="{{ $jobCard->estimated_cost }}" required />
+                            </div>
+
+                            <!-- Status -->
+                            <div>
+                                <x-input-label for="status" :value="__('Status')" />
+                                <select id="status" name="status" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="pending" {{ $jobCard->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="ongoing" {{ $jobCard->status == 'ongoing' ? 'selected' : '' }}>Work In Progress</option>
+                                    <option value="completed" {{ $jobCard->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                                </select>
+                            </div>
+
+                            <!-- Customer Complaints -->
+                            <div class="md:col-span-2">
+                                <x-input-label for="customer_complaints" :value="__('Customer Complaints')" />
+                                <textarea id="customer_complaints" name="customer_complaints" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" rows="3">{{ $jobCard->customer_complaints }}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex items-center gap-4">
+                            <x-primary-button>
+                                {{ __('Update Job Card') }}
+                            </x-primary-button>
+                            <a href="{{ route('job-cards.index') }}" class="text-sm text-gray-600 hover:text-gray-900 underline">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
