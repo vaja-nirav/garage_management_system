@@ -15,7 +15,7 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        $garages = Garage::all();
+        $garages = Garage::take(1)->get(); // Only seed for the first garage to avoid duplicates in admin view
 
         foreach ($garages as $garage) {
             $categories = ProductCategory::where('garage_id', $garage->id)->get();
@@ -67,12 +67,17 @@ class ProductSeeder extends Seeder
                         [
                             'product_category_id' => $category->id,
                             'sku' => strtoupper(substr($catName, 0, 3)) . '-' . rand(1000, 9999),
+                            'barcode' => rand(1000000000, 9999999999),
                             'slug' => Str::slug($p['name']) . '-' . $garage->id,
                             'product_type' => 'physical',
                             'description' => 'High quality ' . $p['name'] . ' for professional use.',
                             'purchase_price' => $p['purchase'],
                             'selling_price' => $p['price'],
+                            'quantity' => rand(10, 50),
                             'min_stock_alert' => 5,
+                            'tax_rate' => 18.00, // Defaulting to 18% GST for professional look
+                            'tax_type' => 'exclusive',
+                            'hsn_code' => 'HSN' . rand(1000, 9999),
                             'is_service_part' => true,
                             'track_stock' => true,
                             'status' => true,
