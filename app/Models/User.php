@@ -38,7 +38,7 @@ class User extends Authenticatable implements TrackablePerson
      */
     public function getTrackingTime(): CarbonInterface
     {
-        return $this->created_at;
+        return $this->created_at ?? now();
     }
 
     /**

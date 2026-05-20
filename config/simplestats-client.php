@@ -131,7 +131,7 @@ return [
         // Make sure this model implements the TrackablePayment or
         // the TrackablePaymentWithCondition contract
         'payment' => [
-            'model' => \App\Models\Subscription::class,
+            'model' => \App\Models\Payment::class,
         ],
     ],
 ];
