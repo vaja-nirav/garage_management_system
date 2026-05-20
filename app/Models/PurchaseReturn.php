@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\BelongsToGarage;
+
 class PurchaseReturn extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToGarage;
 
     protected $fillable = [
         'garage_id',

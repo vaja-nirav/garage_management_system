@@ -27,4 +27,28 @@ class Garage extends Model
         'employee_count',
         'status',
     ];
+
+    /**
+     * Get the users that belong to this garage.
+     */
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    /**
+     * Get the subscriptions for this garage.
+     */
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    /**
+     * Get the latest subscription for this garage.
+     */
+    public function subscription()
+    {
+        return $this->hasOne(Subscription::class)->latestOfMany();
+    }
 }

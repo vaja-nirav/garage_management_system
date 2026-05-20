@@ -48,9 +48,10 @@
                             <div>
                                 <x-input-label for="vehicle_id" :value="__('Vehicle')" />
                                 <select id="vehicle_id" name="vehicle_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="">Select a Vehicle</option>
                                     @foreach($vehicles as $vehicle)
-                                        <option value="{{ $vehicle->id }}" {{ $jobCard->vehicle_id == $vehicle->id ? 'selected' : '' }}>
-                                            {{ $vehicle->registration_number }} ({{ $vehicle->make }} {{ $vehicle->model }})
+                                        <option value="{{ $vehicle->id }}" data-customer-id="{{ $vehicle->customer_id }}" {{ $jobCard->vehicle_id == $vehicle->id ? 'selected' : '' }}>
+                                            {{ $vehicle->registration_number }} ({{ $vehicle->make ?? $vehicle->brand }} {{ $vehicle->model }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -104,3 +105,60 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const customerSelect = document.getElementById('customer_id');
+        const vehicleSelect = document.getElementById('vehicle_id');
+        const originalOptions = Array.from(vehicleSelect.options).map(opt => ({
+            value: opt.value,
+            text: opt.text,
+            customerId: opt.getAttribute('data-customer-id'),
+            selected: opt.selected
+        }));
+
+        function filterVehicles() {
+            const customerId = customerSelect.value;
+            const currentSelectedValue = vehicleSelect.value;
+            
+            // Clear current options
+            vehicleSelect.innerHTML = '';
+            
+            // Add default empty option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.text = 'Select a Vehicle';
+            vehicleSelect.appendChild(defaultOption);
+
+            let hasSelectedValue = false;
+
+            originalOptions.forEach(opt => {
+                if (opt.value === '') return; // Skip original empty option
+                
+                if (opt.customerId == customerId) {
+                    const optionEl = document.createElement('option');
+                    optionEl.value = opt.value;
+                    optionEl.text = opt.text;
+                    optionEl.setAttribute('data-customer-id', opt.customerId);
+                    
+                    // Maintain previous selection if valid
+                    if (opt.value === currentSelectedValue || (currentSelectedValue === '' && opt.selected)) {
+                        optionEl.selected = true;
+                        hasSelectedValue = true;
+                    }
+                    
+                    vehicleSelect.appendChild(optionEl);
+                }
+            });
+
+            if (!hasSelectedValue && vehicleSelect.options.length > 1) {
+                vehicleSelect.selectedIndex = 1; // Select first valid vehicle
+            }
+        }
+
+        if (customerSelect) {
+            customerSelect.addEventListener('change', filterVehicles);
+            filterVehicles(); // Initial filter on load
+        }
+    });
+</script>

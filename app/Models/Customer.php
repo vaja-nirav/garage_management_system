@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
+use App\Traits\BelongsToGarage;
 
 class Customer extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, BelongsToGarage;
 
     protected $fillable = [
         'garage_id',

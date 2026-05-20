@@ -15,6 +15,8 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ServiceAppointmentController;
 use App\Http\Controllers\ServiceJobCardController;
+use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\InspectionChecklistController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DashboardController;
@@ -56,6 +58,9 @@ Route::middleware('auth')->group(function () {
     Route::get('sale-returns/get-items/{sale}', [SaleReturnController::class, 'getSaleItems'])->name('sale-returns.get-items')->middleware('permission:view sale_returns');
     Route::resource('sale-returns', SaleReturnController::class)->middleware('permission:view sale_returns');
     Route::resource('appointments', ServiceAppointmentController::class)->middleware('permission:view appointments');
+    Route::resource('inspection-checklists', InspectionChecklistController::class);
+    Route::resource('quotations', QuotationController::class);
+    Route::post('quotations/{quotation}/convert', [QuotationController::class, 'convertToJobCard'])->name('quotations.convert');
     Route::resource('job-cards', ServiceJobCardController::class)->middleware('permission:view job_cards');
     Route::post('job-cards/{jobCard}/checkout', [ServiceJobCardController::class, 'checkout'])->name('job-cards.checkout')->middleware('permission:view job_cards');
     Route::get('job-cards/{jobCard}/print', [ServiceJobCardController::class, 'print'])->name('job-cards.print')->middleware('permission:view job_cards');

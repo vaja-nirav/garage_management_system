@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Product;
 use App\Models\ServiceJobCard;
 use Illuminate\Database\Eloquent\Builder;
+use App\Traits\BelongsToGarage;
 
 class Vehicle extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToGarage;
 
     protected $fillable = [
         'garage_id',
